@@ -1,0 +1,75 @@
+### Rescaling using the min-max normalization
+Xnew = ((X - MIN(X))/(max(X) - min(X)))
+
+## STEP 1 - Collecting data
+## STEP 2 - Exploring and Preparing Data
+
+1. Import data 
+wbcd <- read.csv("wic_bc_data.csv". stringsAsFactors = FALSE)
+
+2. Use command to check the structure of data
+str() 
+
+3. Dropping a feature
+wbcd <- wbcd[-1]
+
+4. Knowing what a feature contains
+table(wbcd$diagnosis)
+
+5. Many Machine learning classifiers require that the target feature is coded as a factor
+wbcd$diagnosis <- factor(wbcd$diagnosis, levels = c("B", "M"), labels = c("Benign", "Malignant"))
+
+6. To check the labels on the values and their split i.e., 67.3%
+round(prop.table(table(wbcd$diagnosis)) *100, digits = 1)
+## Results benign Malignant
+             62.7      37.3
+
+7. Transformation - normalizing numeric data
+
+normalize <- function(x) {
+return ((x - MIN(X))/(max(X) - min(X)))
+}
+
+Use the lapply function to apply the normalize function
+wbcd_n <- as.data.frame(lapply(wbcd[2:31], normalize)
+
+8. Data preparation - creating training and test data sets
+
+wbcd_train <- wbcd_n[1:469, ]
+wbcd_test <- wbcd_n[470:569, ]
+
+Taking the labels...
+
+wbcd_train_labels <- wbcd[1:469, 1]
+wbcd_test_labels <- wbcd[470:569, 1]
+
+### STEP 3 -TRAINING A MODEL ON THE DATA
+
+Packages "class" needed
+
+wbcd_test_pred <- knn(train = wbcd_train, test = wbcd_test, cl = wbcd_train_labels, k = 21)
+
+### STEP 4 - EVALUATING MODEL PERFORMANCE
+
+packages "gmodels" required
+
+CrossTable(x = wbcd_test_labels, y = wbcd_test_pred, prop.chisq = FALSE)
+
+### STEP 5 - IMPROVING MODEL PERFORMANCE
+## TRANSFORMATION - Z-SCORE STANDARDIZATION
+
+## To standardize a vector we use the already built R function scale()
+
+wbcd_z <- as.data.frame(scale(wbcd[-1])) # mean should always be zero
+
+wbcd_train <- wbcd_z[1:469, ]
+wbcd_test <- wbcd_z[470:569, ] # split the data
+
+wbcd_train_labels <- wbcd[1:469, 1]
+wbcd_test_labels <- wbcd[470:569, 1] #get the labels right
+
+wbcd_test_pred <- knn(train = wbcd_train, test = wbcd_test,
+cl = wbcd_train_labels, k=21) ## run the KNN algorithm
+
+CrossTable(x = wbcd_test_labels, y = wbcd_test_pred,
+prop.chisq=FALSE) ## check how it performed
